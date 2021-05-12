@@ -14,7 +14,7 @@ Install Kubernetes client
 ```
 pip install kubernetes
 ```
- ## Running the program: 
+ ## Running the script 
 ```
 python deployments.py
 ```
