@@ -1,33 +1,42 @@
-Setup Kubernetes client and Socks-Shop microservice 
+# Setup Kubernetes client  
 
-1.1 install minikube on Windows - installed the Win installer
+install minikube on Windows - installed the Win installer
 
-1.2 Start minikube
+Start minikube
+```
 minikube start
-
+```
 Failed
 
 Solution: added minikube in PATH User Variables 
 
-2. Setup Socks Shop application
+# Setup  Socks-Shop microservice 
+## Deploy on Docker
 
-2.1 Clone the microservices-demo repo
+Clone the microservices-demo repo
+```
 git clone https://github.com/microservices-demo/microservices-demo
+```
+Start the app via docker-compose
 
-2.2 Start the app via docker-compose
+Check the app on http://localhost/ 
 
-- Check the app on http://localhost/ 
+## Deploy on Kubernetes
+Assign memory for minikube to run properly
+```
+minikube start --memory 8192 --cpus 4
+```
+Create the logging manifests
+```
+kubectl create -f deploy/kubernetes/manifests-logging
+```
 
-2.3 Assign memory for minikube to run properly
 
+Find local minikube IP then check Kibana dashboard
 
-2.4 Create the logging manifests
+Not working, below see the troubleshooting steps
 
-2.5 Check Kibana dashboard at http://192.168.99.100:31601
-
-"Site can't be reached"
-
-
+```
 kubectl get deployment --namespace=kube-system
 NAME            READY   UP-TO-DATE   AVAILABLE   AGE
 coredns         1/1     1            1           12m
@@ -100,20 +109,41 @@ Events:
   Warning  Failed     4m (x4 over 5m40s)     kubelet            Error: ErrImagePull
   Warning  Failed     3m36s (x7 over 5m39s)  kubelet            Error: ImagePullBackOff
   Normal   BackOff    33s (x20 over 5m39s)   kubelet            Back-off pulling image "elasticsearch"
-  
-  Solution : Edit elasticsearch.yml :
-  
+  ```
+ 
+ Docker hub - no latest tag for both elasticsearch and kibana images
+ Solution:  updated the yaml files to include a fixed version
+ 
+ ```
+ Events:
+  Type     Reason     Age                  From               Message
+  ----     ------     ----                 ----               -------
+  Normal   Scheduled  2m54s                default-scheduler  Successfully assigned kube-system/elasticsearch-69d8bb74cf-p9nz9 to minikube
+  Normal   Pulled     50s (x4 over 2m53s)  kubelet            Container image "elasticsearch:7.12.1" already present on machine
+  Normal   Created    50s (x4 over 2m53s)  kubelet            Created container elasticsearch
+  Normal   Started    50s (x4 over 2m53s)  kubelet            Started container elasticsearch
+  Warning  BackOff    4s (x6 over 116s)    kubelet            Back-off restarting failed container
+
+kubectl logs  --namespace=kube-system elasticsearch-69d8bb74cf-p9nz9
+
+...
+ the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
+ ```
+ Solution : Edit elasticsearch.yml :
+  ```
     env: 
           - name: discovery.type
             value: single-node
-			
-Then deploy again manifests-loggin
+```		
+Then deploy again manifests-logging
 
 		
-2.6 check http://192.168.99.100:31601
- Site not working
+Check Kibana dashboard on local IP
 
-Solution:  Finding the local IP opened :
+ *Site not working*
+
+Solution:  start minikube tunnel to Kibana :
+```
 minikube service --namespace=kube-system  kibana --url
 * Starting tunnel for service kibana.
 |-------------|--------|-------------|------------------------|
@@ -121,5 +151,24 @@ minikube service --namespace=kube-system  kibana --url
 |-------------|--------|-------------|------------------------|
 | kube-system | kibana |             | http://127.0.0.1:58541 |
 |-------------|--------|-------------|------------------------|
+```
+Deploy socks-shop on minikube
+```
+kubectl create -f deploy/kubernetes/manifests
 
-	
+```
+Test the microservice deployment-front-end
+
+```
+minikube service front-end --namespace=sock-shop --url
+* Starting tunnel for service front-end.
+|-----------|-----------|-------------|------------------------|
+| NAMESPACE |   NAME    | TARGET PORT |          URL           |
+|-----------|-----------|-------------|------------------------|
+| sock-shop | front-end |             | http://127.0.0.1:61706 |
+|-----------|-----------|-------------|------------------------|
+http://127.0.0.1:61706
+! Because you are using a Docker driver on windows, the terminal needs to be open to run it.
+```
+
+
