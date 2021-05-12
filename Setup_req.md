@@ -140,7 +140,7 @@ Then deploy again manifests-logging
 		
 Check Kibana dashboard on local IP
 
- *Site not working*
+ *This site can’t be reached*
 
 Solution:  start minikube tunnel to Kibana :
 ```
