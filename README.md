@@ -5,27 +5,22 @@ This python program deployments.py uses Kubernetes API to provide the following 
 - images of each deployments
 - date deployment was updated
 
-#Requirements 
+## Requirements 
 
-Kubernetes client and Socks-Shop microservice requirements - more info here
+Kubernetes client and Socks-Shop microservice requirements - more info [here](https://github.com/andreeaeliade/socks_project/blob/main/Setup_req.md)
 
 Install Python 2.7 or 3.5+
 Install Kubernetes client
 ```
-
 pip install kubernetes
 ```
-
-#Running the program: 
+ ## Running the program: 
 ```
-
-python socks.python
+python deployments.py
 ```
 
 The command will list all deployments for all namespaces
 ```
-
-
 List deployments for all namespaces
 
 NAME         DATE                       IMAGES
@@ -51,9 +46,7 @@ user-db      2021-05-11 21:42:32+00:00  weaveworksdemos/user-db:0.3.0
 python socks.python sock-shop
 ```
 The command will return all deployments for namespace="sock-shop"
-
 ```
-
 List deployments for sock-shop namespace
 NAME         DATE                       IMAGES
 carts        2021-05-11 21:39:02+00:00  weaveworksdemos/carts:0.4.8
